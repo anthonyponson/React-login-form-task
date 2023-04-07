@@ -11,6 +11,14 @@ function Home() {
     console.log(storedTasks)
   }, [])
 
+//   const edit = (e) => {
+//     const index = e.target.dataset.index
+//     const removedTasks = tasks[index]
+//     console.log('removed', removedTasks)
+//     setTasks((prevTasks) => prevTasks.filter((task) => task !== index))
+//     navigate('/form', { state: { task: tasks[index], index } })
+//     // setTasks([])
+//   }
   const edit = (e) => {
     const index = e.target.dataset.index
     const removedTasks = tasks[index]
