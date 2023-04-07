@@ -49,7 +49,7 @@ function Home() {
             <button onClick={edit} data-index={index}>
               Edit
             </button>
-            <button onClick={deleteButton} data-index={index} data-index={index}>delete</button>
+            <button onClick={deleteButton} data-index={index}>delete</button>
           </li>
         ))}
       </ul>
