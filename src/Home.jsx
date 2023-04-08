@@ -11,15 +11,14 @@ function Home() {
     console.log(storedTasks)
   }, [])
 
-
-  const edit = (e) => {
+   const deleteButton = (e) => {
     const index = e.target.dataset.index
-    const removedTasks = tasks[index]
-    console.log('removed', removedTasks)
-    setTasks((prevTasks) => prevTasks.filter((task) => task !== index))
-    navigate('/form', { state: { task: tasks[index], index } })
-    // setTasks([])
+    const newTasks = [...tasks]
+    newTasks.splice(index, 1)
+    setTasks(newTasks)
+    localStorage.setItem('tasks', JSON.stringify(newTasks))
   }
+
   const deleteButton = (e) => {
     const index = e.target.dataset.index
     const newTasks = [...tasks]
