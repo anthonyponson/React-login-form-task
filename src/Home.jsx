@@ -1,61 +1,51 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-function Home() {
+const Home = () => {
   const [tasks, setTasks] = useState([])
-  const navigate = useNavigate()
 
   useEffect(() => {
-    const storedTasks = JSON.parse(localStorage.getItem('tasks')) || []
-    setTasks(storedTasks)
-    console.log(storedTasks)
+    const tasksFromLocalStorage =
+      JSON.parse(localStorage.getItem('tasks')) || []
+    setTasks(tasksFromLocalStorage)
   }, [])
 
-    const edit = (e) => {
-    const index = e.target.dataset.index
-    const newTasks = [...tasks]
-    const removedTask = newTasks.splice(index, 1)
-    setTasks(newTasks)
-    localStorage.setItem('tasks', JSON.stringify(newTasks))
-    navigate('/form', { state: { task: removedTask[0], index } })
+  const navigate = useNavigate()
+
+  const deleteTask = (index) => {
+    const updatedTasks = [...tasks]
+    updatedTasks.splice(index, 1)
+    setTasks(updatedTasks)
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks))
+
+    let tasksFromLS = JSON.parse(localStorage.getItem('tasks')) || []
+    tasksFromLS.splice(index, 1)
+    localStorage.setItem('tasks', JSON.stringify(tasksFromLS))
   }
 
-  const deleteButton = (e) => {
-    const index = e.target.dataset.index
-    const newTasks = [...tasks]
-    newTasks.splice(index, 1)
-    setTasks(newTasks)
-    localStorage.setItem('tasks', JSON.stringify(newTasks))
+  const editTask = (task, index) => {
+    navigate('/form', { state: { task, index } })
   }
-  const goToForm = () => {
-    navigate('/form')
-  }
+
   return (
-    <>
-      <div>
-        <nav className="nav">
-          <li onClick={goToForm} className="list-item">
-            Form
-          </li>
-        </nav>
-      </div>
-      <h1>Tasks:</h1>
-      <ul>
-        {tasks.map((task, index) => (
-          <li key={index}>
-            {task.taskName} - {task.taskDes}:{' '}
-            <input type="checkbox" checked={task.checked} />
-            <label>{task.checked ? 'Completed' : 'Not completed'}</label>
-            {/* {task.checked ? 'Completed' : 'Not completed'} */}
-            <button onClick={edit} data-index={index}>
-              Edit
-            </button>
-            <button onClick={deleteButton} data-index={index}>delete</button>
-          </li>
-        ))}
-      </ul>
-    </>
+    <div>
+      {tasks.map((task, index) => {
+        return (
+          <ul key={index}>
+            <li>
+              {task.name} - {task.description}
+              <input type="checkbox" checked={task.isComplete} />
+              <button onClick={() => editTask(task, index)}>Edit</button>
+              <button onClick={() => deleteTask(index)}>Delete</button>
+            </li>
+          </ul>
+        )
+      })}
+
+      <button onClick={() => navigate('/form')}>Go to Form</button>
+    </div>
   )
 }
 
 export default Home
+
