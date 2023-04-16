@@ -1,121 +1,72 @@
-import React, { useState, useEffect } from 'react'
-import {
-  useNavigate,
-  useLocation,
-  BrowserRouter,
-  Route,
-  Router,
-  Link
-} from 'react-router-dom'
-import './styles.css'
+import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 
-function Form() {
-  const [taskName, setName] = useState('')
-  const [taskDes, setDes] = useState('')
-  const [checked, setChecked] = useState(false)
-  const [isFormSubmited, setIsFormSubmited] = useState(false)
-  const [tasks, setTasks] = useState([])
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [task, setTask] = useState(location.state?.task || {})
-  const index = location.state?.index
+const Form = () => {
+  const locationState = useLocation().state
+  const [taskName, setTaskName] = useState(locationState?.task?.name ?? '')
+  const [taskDes, setTaskDes] = useState(locationState?.task?.description ?? '')
+  const [checkInput, setCheckInput] = useState(
+    locationState?.task?.isComplete ?? false
+  )
+  const [isSubmit, setIsSubmit] = useState(false)
 
-  useEffect(() => {
-    const storedTasks = JSON.parse(localStorage.getItem('tasks')) || []
-    setTasks(storedTasks)
-    if (task.taskName || task.taskDes || task.checked) {
-      const { taskName = '', taskDes = '', checked = false } = task
-      setName(taskName)
-      setDes(taskDes)
-      setChecked(checked)
-    }
-  }, [])
-
-  const inputChange = (e) => {
-    console.log(e.target.value)
+  const sameInput = (e) => {
     if (e.target.name === 'name') {
-      setName(e.target.value)
+      setTaskName(e.target.value)
     } else {
-      setDes(e.target.value)
+      setTaskDes(e.target.value)
     }
   }
 
-  const checkboxChecked = (e) => {
-    setChecked(e.target.checked)
+  const checking = (e) => {
+    setCheckInput(!checkInput)
   }
 
-  const handleClicksubmit = (e) => {
+  const submitHandle = (e) => {
     e.preventDefault()
-    setIsFormSubmited(true)
+    setIsSubmit(true)
     if (taskName === '' || taskDes === '') return
 
-    const newTask = { taskName, taskDes, checked }
-    if (index !== undefined) {
-      tasks[index] = newTask
-      localStorage.setItem('tasks', JSON.stringify(tasks))
-    } else {
-      setTasks([...tasks, newTask])
-      localStorage.setItem('tasks', JSON.stringify([...tasks, newTask]))
+    const newTask = {
+      name: taskName,
+      description: taskDes,
+      isComplete: checkInput
     }
 
-    setName('')
-    setDes('')
-    setChecked(false)
-    setIsFormSubmited(false)
-    // navigate('/home')
-  }
-  const goToHome = () => {
+    if (locationState?.index !== undefined) {
+      const updatedTasks = JSON.parse(localStorage.getItem('tasks')) || []
+      updatedTasks[locationState.index] = newTask
+      localStorage.setItem('tasks', JSON.stringify(updatedTasks))
+    } else {
+      const updatedTasks = [
+        ...JSON.parse(localStorage.getItem('tasks') || []),
+        newTask
+      ]
+      localStorage.setItem('tasks', JSON.stringify(updatedTasks))
+    }
+
+    setTaskName('')
+    setTaskDes('')
+    setCheckInput(false)
+    setIsSubmit(false)
+
     navigate('/home')
   }
-  const goToForm = () => {
-    navigate('/form')
-  }
+
+  const navigate = useNavigate()
 
   return (
-    <>
-      <div>
-        <nav className="nav">
-          <li className="list-item" onClick={goToHome}>
-            Home
-          </li>
-        </nav>
-      </div>
-
-      <form onSubmit={handleClicksubmit}>
-        <input
-          name="name"
-          value={taskName}
-          onChange={inputChange}
-          type="text"
-        />
-        {taskName === '' && isFormSubmited && (
-          <div className="task-dev">task name required</div>
-        )}
-
-        <input name="des" value={taskDes} onChange={inputChange} type="text" />
-
-        {taskDes === '' && isFormSubmited && (
-          <div className="task-dev">task des required</div>
-        )}
-
-        <input checked={checked} type="checkbox" onChange={checkboxChecked} />
+    <div>
+      <form onSubmit={submitHandle}>
+        <input name="name" value={taskName} onChange={sameInput} type="text" />
+        {taskName === '' && isSubmit && <div>Please fill the box</div>}
+        <input name="des" value={taskDes} onChange={sameInput} type="text" />
+        {taskDes === '' && isSubmit && <div>Please fill the second box</div>}
+        <input checked={checkInput} onChange={checking} type="checkbox" />
         <input type="submit" />
-      </form>
-
-      <div>
-        <h1>Tasks: </h1>
-        <ul>
-          {tasks.map((task, index) => (
-            <li key={index}>
-              {' '}
-              {task.taskName} - {task.taskDes} :
-              <input type="checkbox" checked={task.checked} />
-              <label>{task.checked ? 'Completed' : 'Not completed'}</label>
-            </li>
-          ))}{' '}
-        </ul>
-      </div>
-    </>
+        <button onClick={() => navigate('/home')}>Go to Home</button>{' '}
+      </form>{' '}
+    </div>
   )
 }
 
